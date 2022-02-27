@@ -3,8 +3,6 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 
-from model.utils import LayerNorm
-
 
 class AttentionLayer(nn.Module):
 
@@ -12,7 +10,7 @@ class AttentionLayer(nn.Module):
         super(AttentionLayer, self).__init__()
         self.self_attention = MultiHeadAttention(feature_size=feature_size, head_num=head_num, dropout_rate=0.1)
         self.feed_forward = AttentionFeedForward(feature_size=feature_size, dropout_rate=0.1)
-        self.layer_norm = LayerNorm(feature_size=feature_size)
+        self.layer_norm = nn.LayerNorm(feature_size)
 
     def forward(self, inputs, mask=None):
         q = k = v = inputs

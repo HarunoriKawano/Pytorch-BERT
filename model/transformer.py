@@ -3,7 +3,6 @@ import torch
 from torch import nn
 
 from model.attention import AttentionLayer
-from model.utils import LayerNorm
 
 
 class TransformerLayer(nn.Module):
@@ -12,7 +11,7 @@ class TransformerLayer(nn.Module):
 
         self.attention_layer = AttentionLayer(feature_size, attention_head_num)
         self.feed_forward = TransformerFeedForward(feature_size, hidden_size)
-        self.layer_norm = LayerNorm(feature_size)
+        self.layer_norm = nn.LayerNorm(feature_size)
 
     def forward(self, inputs, mask=None):
         attention = self.attention_layer(inputs, mask)
