@@ -30,7 +30,7 @@ class AttentionFeedForward(nn.Module):
 
     def forward(self, inputs):
         out = self.linear(inputs)
-        out = self.dropout(inputs)
+        out = self.dropout(out)
         return out
 
 

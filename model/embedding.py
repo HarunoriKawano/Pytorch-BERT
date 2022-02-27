@@ -13,7 +13,7 @@ class BERTEmbedding(nn.Module):
         word_embedding (nn.Embedding): Convert word ID to word vector.
         position_embedding (nn.Embedding): Convert location tensor to vector.
         token_type_embedding (nn.Embedding): Converting text information into vectors.
-        norm (BERTLayerNorm): layer normalization
+        layer_norm (BERTLayerNorm): layer normalization
         dropout (nn.Dropout): dropout
     """
 
@@ -34,7 +34,7 @@ class BERTEmbedding(nn.Module):
             type_vocab_size, feature_size
         )
 
-        self.norm = BERTLayerNorm(feature_size)
+        self.layer_norm = nn.LayerNorm(feature_size)
 
         self.dropout = nn.Dropout(dropout_rate)
 
@@ -68,29 +68,7 @@ class BERTEmbedding(nn.Module):
 
         # torch.Size([batch_size, max_sentence_len, 768])
         embeddings = word_embeddings + position_embeddings + token_type_embeddings
-        embeddings = self.norm(embeddings)
+        embeddings = self.layer_norm(embeddings)
         embeddings = self.dropout(embeddings)
 
         return embeddings
-
-
-class BERTLayerNorm(nn.Module):
-    """Layer normalization for BERT.
-
-    Attributes:
-        gamma (torch.Parameter(feature_size)): Weight of layer norm
-        beta (torch.Parameter(feature_size)): Bias of layer norm
-        variance_epsilon (float): Minimal value to prevent division by zero
-    """
-
-    def __init__(self, feature_size, eps=1e-12):
-        super(BERTLayerNorm, self).__init__()
-        self.gamma = nn.Parameter(torch.ones(feature_size))
-        self.beta = nn.Parameter(torch.zeros(feature_size))
-        self.variance_epsilon = eps
-
-    def forward(self, inputs):
-        u = inputs.mean(-1, keepdim=True)
-        s = (inputs - u).pow(2).mean(-1, keepdim=True)
-        inputs = (inputs - u) / torch.sqrt(s + self.variance_epsilon)
-        return self.gamma * inputs + self.beta

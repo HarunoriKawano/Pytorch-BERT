@@ -1,6 +1,5 @@
-import math
-import torch
 from torch import nn
+import torch.nn.functional as F
 
 from model.attention import AttentionLayer
 
@@ -30,16 +29,7 @@ class TransformerFeedForward(nn.Module):
         self.dropout = nn.Dropout(dropout_rate)
 
     def forward(self, inputs):
-        out = self._gelu(self.linear1(inputs))
+        out = F.gelu(self.linear1(inputs))
         out = self.dropout(self.linear2(out))
 
         return out
-
-    @staticmethod
-    def _gelu(x):
-        """
-            An activation function that is a smoothing of LeLU into a continuous form.
-            """
-        return x * 0.5 * (1.0 + torch.erf(x / math.sqrt(2.0)))
-
-
