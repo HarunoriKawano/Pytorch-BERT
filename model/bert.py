@@ -35,16 +35,9 @@ class BertModel(nn.Module):
         """
         if mask is None:
             mask = torch.ones_like(inputs)
-        if token_type_ids is None:
-            token_type_ids = torch.zeros_like(inputs)
-
-        extended_mask = mask.unsqueeze(1).unsqueeze(2)
-        extended_mask = extended_mask.to(dtype=torch.float32)
-        # Set the mask part to -10000 so that it becomes a mask when the softmax is calculated.
-        extended_mask = (1.0 - extended_mask) * -10000.0
 
         embedding_out = self.embedding(inputs, token_type_ids)
-        encoded_layers = self.encoder(embedding_out, extended_mask)
+        encoded_layers = self.encoder(embedding_out, mask)
 
         pooled_first_token = self.pool(encoded_layers)
 
@@ -59,7 +52,7 @@ class BertEncoder(nn.Module):
     Attributes:
         bert_layers (nn.ModuleList(TransformerLayer × bert_layer_num)): The transformer layers that makes up BERT
     """
-    def __init__(self, feature_size, hidden_size, attention_head_num, bert_layer_num=12):
+    def __init__(self, feature_size, hidden_size, attention_head_num, bert_layer_num):
         super(BertEncoder, self).__init__()
         self.bert_layers = nn.ModuleList([TransformerLayer(feature_size, hidden_size, attention_head_num) for _ in range(bert_layer_num)])
 

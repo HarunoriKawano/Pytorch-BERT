@@ -56,7 +56,7 @@ class BERTEmbedding(nn.Module):
         # When token_type_ids is None, all words are used as the first sentence.
         # torch.Size([batch_size, max_sentence_len, 768])
         if token_type_ids is None:
-            token_type_ids = torch.zeros_like(input_ids)
+            token_type_ids = torch.zeros_like(input_ids, device=self.device)
         token_type_embeddings = self.token_type_embedding(token_type_ids)
 
         position_ids = torch.arange(seq_len, dtype=torch.long, device=self.device)

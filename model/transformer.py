@@ -21,7 +21,7 @@ class TransformerLayer(nn.Module):
         self.feed_forward = TransformerFeedForward(feature_size, hidden_size)
         self.layer_norm = nn.LayerNorm(feature_size)
 
-    def forward(self, inputs, mask=None):
+    def forward(self, inputs, mask):
         """
         Args:
             inputs (torch.FloatTensor(batch_size, max_seq_len, feature_size))
@@ -47,7 +47,7 @@ class TransformerFeedForward(nn.Module):
         linear2 (nn.Linear)
         dropout (nn.Dropout)
     """
-    def __init__(self, feature_size=512, hidden_size=3072, dropout_rate=0.1):
+    def __init__(self, feature_size, hidden_size, dropout_rate=0.1):
         super(TransformerFeedForward, self).__init__()
 
         self.linear1 = nn.Linear(feature_size, hidden_size)

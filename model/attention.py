@@ -15,13 +15,13 @@ class AttentionLayer(nn.Module):
         layer_norm (nn.LayerNorm): layer normalization
     """
 
-    def __init__(self, feature_size=512, head_num=8):
+    def __init__(self, feature_size, head_num):
         super(AttentionLayer, self).__init__()
         self.self_attention = MultiHeadAttention(feature_size=feature_size, head_num=head_num, dropout_rate=0.1)
         self.feed_forward = AttentionFeedForward(feature_size=feature_size, dropout_rate=0.1)
         self.layer_norm = nn.LayerNorm(feature_size)
 
-    def forward(self, inputs, mask=None):
+    def forward(self, inputs, mask):
         """
         Args:
             inputs (torch.FloatTensor(batch_size, max_seq_len, feature_size))
@@ -45,7 +45,7 @@ class AttentionFeedForward(nn.Module):
         linear (nn.Linear)
         dropout (nn.Dropout)
     """
-    def __init__(self, feature_size=512, dropout_rate=0.1):
+    def __init__(self, feature_size, dropout_rate=0.1):
         super(AttentionFeedForward, self).__init__()
 
         self.linear = nn.Linear(feature_size, feature_size)
@@ -81,7 +81,7 @@ class MultiHeadAttention(nn.Module):
 
     """
 
-    def __init__(self, feature_size=512, head_num=8, dropout_rate=0.1):
+    def __init__(self, feature_size, head_num, dropout_rate=0.1):
         super(MultiHeadAttention, self).__init__()
         self.q_linear = nn.Linear(feature_size, feature_size).float()
         self.k_linear = nn.Linear(feature_size, feature_size).float()
@@ -119,7 +119,8 @@ class MultiHeadAttention(nn.Module):
         weights = torch.matmul(q, torch.transpose(k, 2, 3)) / math.sqrt(self.head_dim)
 
         if mask is not None:
-            weights = weights.masked_fill(mask == 0, -1e9)
+            extended_mask = mask.unsqueeze(1).unsqueeze(2)
+            weights = weights.masked_fill(extended_mask == 0, -1e9)
         weights = self.dropout(weights)
 
         normalized_weights = F.softmax(weights, dim=-1)
