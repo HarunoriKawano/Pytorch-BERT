@@ -13,7 +13,7 @@ class BERTEmbedding(nn.Module):
         word_embedding (nn.Embedding): Convert word ID to word vector.
         position_embedding (nn.Embedding): Convert location tensor to vector.
         token_type_embedding (nn.Embedding): Converting text information into vectors.
-        layer_norm (BERTLayerNorm): layer normalization
+        layer_norm (nn.LayerNorm): layer normalization
         dropout (nn.Dropout): dropout
     """
 

@@ -5,6 +5,15 @@ import torch.nn.functional as F
 
 
 class AttentionLayer(nn.Module):
+    """Attention layer in transformer
+
+    self-attention -> feed forward -> layer normalization
+
+    Attributes:
+        self_attention (MultiHeadAttention): self-attention layer in transformer
+        feed_forward (AttentionFeedForward): feed forward layer in transformer
+        layer_norm (nn.LayerNorm): layer normalization
+    """
 
     def __init__(self, feature_size=512, head_num=8):
         super(AttentionLayer, self).__init__()
@@ -13,6 +22,14 @@ class AttentionLayer(nn.Module):
         self.layer_norm = nn.LayerNorm(feature_size)
 
     def forward(self, inputs, mask=None):
+        """
+        Args:
+            inputs (torch.FloatTensor(batch_size, max_seq_len, feature_size))
+            mask (torch.LongTensor(batch_size, max_seq_len) or None)
+
+        Returns:
+            torch.FloatTensor(batch_size, max_seq_len, feature_size)
+        """
         q = k = v = inputs
         attention = self.self_attention(q, k, v, mask=mask)
         attention = self.feed_forward(attention)
@@ -22,6 +39,12 @@ class AttentionLayer(nn.Module):
 
 
 class AttentionFeedForward(nn.Module):
+    """Feed forward layer after self-attention
+
+    Attributes:
+        linear (nn.Linear)
+        dropout (nn.Dropout)
+    """
     def __init__(self, feature_size=512, dropout_rate=0.1):
         super(AttentionFeedForward, self).__init__()
 
@@ -29,6 +52,13 @@ class AttentionFeedForward(nn.Module):
         self.dropout = nn.Dropout(dropout_rate)
 
     def forward(self, inputs):
+        """
+            Args:
+                inputs (torch.FloatTensor(batch_size, max_seq_len, feature_size))
+
+            Returns:
+                torch.FloatTensor(batch_size, max_seq_len, feature_size)
+        """
         out = self.linear(inputs)
         out = self.dropout(out)
         return out
@@ -54,8 +84,8 @@ class MultiHeadAttention(nn.Module):
     def __init__(self, feature_size=512, head_num=8, dropout_rate=0.1):
         super(MultiHeadAttention, self).__init__()
         self.q_linear = nn.Linear(feature_size, feature_size).float()
-        self.v_linear = nn.Linear(feature_size, feature_size).float()
         self.k_linear = nn.Linear(feature_size, feature_size).float()
+        self.v_linear = nn.Linear(feature_size, feature_size).float()
         self.dropout = nn.Dropout(dropout_rate)
 
         self.out_linear = nn.Linear(feature_size, feature_size).float()
